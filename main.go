@@ -12,6 +12,13 @@ type ChatRoom struct {
 	users map[*User]bool
 }
 
+type User struct {
+	name     string
+	password string
+	ws       *websocket.Conn
+}
+
+
 func newChatRoom() *ChatRoom {
 	return &ChatRoom{
 		users: make(map[*User]bool),
@@ -49,16 +56,11 @@ func (r *ChatRoom) sendToAll(msg []byte) {
 		_, err := user.ws.Write(msg) //func (ws *Conn) Write(msg []byte) (n int, err error)
 		if err != nil {
 			fmt.Println(err)
-			return
+			continue
 		}
 	}
 }
 
-type User struct {
-	name     string
-	password string
-	ws       *websocket.Conn
-}
 
 func handleChatRoom(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "index.html")
@@ -67,6 +69,7 @@ func handleChatRoom(w http.ResponseWriter, r *http.Request) {
 func main() {
 	chat := newChatRoom()
 	http.HandleFunc("/", handleChatRoom)                 //func HandleFunc(pattern string, handler func(ResponseWriter, *Request))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.Handle("/ws", websocket.Handler(chat.handleWs)) //func Handle(pattern string, handler Handler)
 	fmt.Println("Gobusters Chat Application")
 	log.Fatal(http.ListenAndServe(":8080", nil))
