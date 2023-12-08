@@ -26,14 +26,16 @@ func (r *ChatRoom) handleWs(ws *websocket.Conn) {
 	}
 
 	r.users[user] = true
-	r.listen(user.ws)
+	r.listen(user)
 }
 
-func (r *ChatRoom) listen(ws *websocket.Conn) {
+func (r *ChatRoom) listen(user *User) {
 	data := make([]byte, 1024)
 	for {
-		n, err := ws.Read(data) //func (ws *Conn) Read(msg []byte) (n int, err error)
+		n, err := user.ws.Read(data) //func (ws *Conn) Read(msg []byte) (n int, err error)
 		if err != nil {
+			delete(r.users, user)
+			fmt.Println("El usuario", user.ws.RemoteAddr(), "se ha desconectado.")
 			fmt.Println(err)
 			return
 		}
@@ -68,6 +70,10 @@ func main() {
 	chat := newChatRoom()
 	http.HandleFunc("/", handleChatRoom)                 //func HandleFunc(pattern string, handler func(ResponseWriter, *Request))
 	http.Handle("/ws", websocket.Handler(chat.handleWs)) //func Handle(pattern string, handler Handler)
+	//type Handler interface { ServeHTTP(ResponseWriter, *Request) }
+	//func (h Handler) ServeHTTP(w http.ResponseWriter, req *http.Request)
+	//ServeHTTP implements the http.Handler interface for a WebSocket
+
 	fmt.Println("Gobusters Chat Application")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
