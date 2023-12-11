@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -25,12 +26,20 @@ type User struct {
 var users = make(map[string]*User)
 
 type ChatRoom struct {
-	users map[*User]bool
+	users    map[*User]bool
+	messages *os.File
 }
 
 func newChatRoom() *ChatRoom {
+	messages, err := os.OpenFile("messages.txt", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644) //func OpenFile(name string, flag int, perm FileMode) (*File, error)
+	if err != nil {
+		fmt.Println("Error newChatRoom:", err)
+		return nil
+	}
+
 	return &ChatRoom{
-		users: make(map[*User]bool),
+		users:    make(map[*User]bool),
+		messages: messages,
 	}
 }
 
@@ -68,102 +77,64 @@ func (r *ChatRoom) handleWs(ws *websocket.Conn) {
 			fmt.Println("User logged in:", user.name)
 		}
 
-		r.users[user] = true
-		defer func() {
-			// Remove the user when the WebSocket connection is closed
-			delete(r.users, user)
-			fmt.Println("User disconnected:", user.name)
-		}()
+	r.users[user] = true
 
-		r.listen(ws)
-	}
-}
-
-func writeUserToCSV(user *User, filename string) error {
-	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+	info, err := os.Stat("messages.txt")
 	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	// Write user data
-	if err := writer.Write(user.toCSVRecord()); err != nil {
-		return err
+		fmt.Println("Error info:", err)
+		return
 	}
 
-	return nil
-}
-
-var registeredUsers []*User
-
-func loginUser (ws *websocket.Conn) (*User, error) {
-	// Read action:username:password from the user
-	var credentials string
-	err := websocket.Message.Receive(ws, &credentials)
-	if err != nil {
-		return nil, err
-	}
-
-	// Split the credentials into action, username, and password
-	parts := strings.Split(credentials, ":")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid credentials format")
-	}
-
-	action, username, password := parts[0], parts[1], parts[2]
-
-	switch action {
-	case "login":
-		// In a real-world scenario, you would validate against a database.
-		if user, ok := users[username]; ok && user.password == password {
-			return user, nil
-		}
-	case "register":
-		// Check if the user is not already registered
-		if _, ok := users[username]; !ok {
-			user := &User{
-				name:       username,
-				password:   password,
-				registered: true,
-				ws:         ws,
-			}
-
-			// Store the registered user
-			users[username] = user
-			registeredUsers = append(registeredUsers, user)
-
-			// Write users to CSV file
-			if err := writeUsersToCSV(registeredUsers, "users.csv"); err != nil {
-				return nil, err
-			}
-
-			return user, nil
-		}
-		return nil, fmt.Errorf("User already registered")
-	}
-
-	return nil, fmt.Errorf("Invalid action")
-}
-
-func (r *ChatRoom) listen(ws *websocket.Conn) {
-	for {
-		var msg string
-		if err := websocket.Message.Receive(ws, &msg); err != nil {
-			fmt.Println(err)
+	if info.Size() > 0 {
+		file, err := os.OpenFile("messages.txt", os.O_RDWR, 0644) //func OpenFile(name string, flag int, perm FileMode) (*File, error)
+		if err != nil {
+			fmt.Println("Error open:", err)
 			return
 		}
 
-		fmt.Println(msg)
-		r.sendToAll([]byte(msg))
+		history := make([]byte, 1024)
+		_, err = file.Read(history) //func (f *File) Read(b []byte) (n int, err error)
+		if err != nil {
+			if err != io.EOF {
+				fmt.Println("Error read:", err)
+				return
+			}
+		}
+
+		if _, err = user.ws.Write(history); err != nil { //func (ws *Conn) Write(msg []byte) (n int, err error)
+			fmt.Println("Error send:", err)
+			return
+		}
+
+		fmt.Println("Los mensajes anteriores han sido enviados a", ws.RemoteAddr(), ":\n", string(history))
+	}
+
+	r.listen(user)
+}
+
+func (r *ChatRoom) listen(user *User) {
+	data := make([]byte, 1024)
+	for {
+		n, err := user.ws.Read(data) //func (ws *Conn) Read(msg []byte) (n int, err error)
+		if err != nil {
+			delete(r.users, user)
+			if err == io.EOF {
+				fmt.Println("El usuario", user.ws.RemoteAddr(), "se ha desconectado. Quedan", len(r.users), "usuarios conectados.")
+			} else {
+				fmt.Println("Error ws:", err)
+			}
+			return
+		}
+
+		msg := data[:n]
+		fmt.Println(string(msg))
+		r.sendToAll(msg)
 	}
 }
 
 func (r *ChatRoom) sendToAll(msg []byte) {
 	for user := range r.users {
-		_, err := user.ws.Write(msg) // func (ws *Conn) Write(msg []byte) (n int, err error)
+		_, err := user.ws.Write(msg) //func (ws *Conn) Write(msg []byte) (n int, err error)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -208,8 +179,12 @@ func handleChatRoom(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	chat := newChatRoom()
-	http.HandleFunc("/", handleChatRoom)
-	http.Handle("/ws", websocket.Handler(chat.handleWs))
+	http.HandleFunc("/", handleChatRoom)                 //func HandleFunc(pattern string, handler func(ResponseWriter, *Request))
+	http.Handle("/ws", websocket.Handler(chat.handleWs)) //func Handle(pattern string, handler Handler)
+	//type Handler interface { ServeHTTP(ResponseWriter, *Request) }
+	//func (h Handler) ServeHTTP(w http.ResponseWriter, req *http.Request)
+	//ServeHTTP implements the http.Handler interface for a WebSocket
+
 	fmt.Println("Gobusters Chat Application")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
