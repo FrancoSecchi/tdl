@@ -111,6 +111,7 @@ func (r *ChatRoom) handleWs(ws *websocket.Conn) {
 
 	r.listen(user)
 }
+}
 
 func (r *ChatRoom) listen(user *User) {
 	data := make([]byte, 1024)
@@ -147,7 +148,7 @@ func (u *User) toCSVRecord() []string {
 	return []string{u.name, u.password, strconv.FormatBool(u.registered)}
 }
 
-func writeUsersToCSV(users []*User, filename string) error {
+func writeUserToCSV(users []*User, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
