@@ -12,6 +12,15 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+const USESR_FILE = "users.csv"
+
+type User struct {
+	name       string
+	password   string
+	registered bool
+	ws         *websocket.Conn
+}
+
 // Declare a map to store registered users
 var users = make(map[string]*User)
 
@@ -28,31 +37,46 @@ func newChatRoom() *ChatRoom {
 func (r *ChatRoom) handleWs(ws *websocket.Conn) {
 	fmt.Println("A new user has connected:", ws.RemoteAddr())
 
-	user, err := loginUser(ws)
-	if err != nil {
-		fmt.Println("Login/Register error:", err)
-		return
-	}
+	// Use a channel to signal the completion of login
+	loginDone := make(chan struct{})
+	defer close(loginDone)
 
-	if user.registered {
-		fmt.Println("User registered:", user.name)
+	var user *User
+	var err error
 
-		// Write user to CSV file
-		if err := writeUserToCSV(user, "users.csv"); err != nil {
-			fmt.Println("Error writing user to CSV:", err)
-		}
-	} else {
-		fmt.Println("User logged in:", user.name)
-	}
-
-	r.users[user] = true
-	defer func() {
-		// Remove the user when the WebSocket connection is closed
-		delete(r.users, user)
-		fmt.Println("User disconnected:", user.name)
+	go func() {
+		user, err = loginUser(ws)
+		loginDone <- struct{}{}
 	}()
 
-	r.listen(ws)
+	select {
+	case <-loginDone:
+		// Login completed
+		if err != nil {
+			fmt.Println("Login/Register error:", err)
+			return
+		}
+
+		if user.registered {
+			fmt.Println("User registered:", user.name)
+
+			// Write user to CSV file
+			if err := writeUserToCSV(user, "users.csv"); err != nil {
+				fmt.Println("Error writing user to CSV:", err)
+			}
+		} else {
+			fmt.Println("User logged in:", user.name)
+		}
+
+		r.users[user] = true
+		defer func() {
+			// Remove the user when the WebSocket connection is closed
+			delete(r.users, user)
+			fmt.Println("User disconnected:", user.name)
+		}()
+
+		r.listen(ws)
+	}
 }
 
 func writeUserToCSV(user *User, filename string) error {
@@ -75,8 +99,7 @@ func writeUserToCSV(user *User, filename string) error {
 
 var registeredUsers []*User
 
-func loginUser(ws *websocket.Conn) (*User, error) {
-
+func loginUser (ws *websocket.Conn) (*User, error) {
 	// Read action:username:password from the user
 	var credentials string
 	err := websocket.Message.Receive(ws, &credentials)
@@ -177,13 +200,6 @@ func writeUsersToCSV(users []*User, filename string) error {
 	}
 
 	return nil
-}
-
-type User struct {
-	name       string
-	password   string
-	registered bool
-	ws         *websocket.Conn
 }
 
 func handleChatRoom(w http.ResponseWriter, r *http.Request) {
