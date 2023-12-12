@@ -32,6 +32,18 @@ p {
   position: relative;
 }
 
+
+.message > .username {
+  padding: 10px 10px 0;
+  background-color: #f2f2f2;
+  max-width: max-content;
+  border-radius: 10px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  font-weight: 600;
+  border-bottom: 1px solid #bfb9b9;
+}
+
 .message {
   margin-bottom: 20px;
   padding: 10px;
@@ -47,16 +59,19 @@ p {
 .message-received {
   display: flex;
   justify-content: flex-start;
+  flex-direction: column;
 }
 
 .message-received > .message-text {
   background-color: #f2f2f2;
   text-align: left;
+  border-top-left-radius: 0;
 }
 
 .message-sent {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: end;
 }
 
 .message-sent > .message-text {
