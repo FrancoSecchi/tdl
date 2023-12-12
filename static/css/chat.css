@@ -53,7 +53,8 @@ p {
 .message-text {
   padding: 10px;
   border-radius: 10px;
-  max-width: max-content;
+  max-width: 500px;
+  word-wrap: break-word;
 }
 
 .message-received {
@@ -79,6 +80,7 @@ p {
   color: white;
   text-align: right;
   max-width: max-content;
+
 }
 
 .input-message {

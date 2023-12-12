@@ -23,7 +23,7 @@ type ChatRoom struct {
 type ChatMessage struct {
 	User    string `json:"user"`
 	Message string `json:"message"`
-	Hora    string `json:"hora"`
+	Time    string `json:"time"`
 }
 
 
@@ -76,12 +76,12 @@ func (r *ChatRoom) listen(user *User) {
 	  msg := ChatMessage{
 		User:    user.name,
 		Message: string(data[:n]),
-		Hora:    time.Now().Format("15:04"),
+		Time:    time.Now().Format("15:04"),
  	 }
 	  jsonData, err := json.Marshal(msg)
         r.sendToAll(jsonData)
 
-	  messageToSave :=  []string {msg.User, msg.Message, msg.Hora}
+	  messageToSave :=  []string {msg.User, msg.Message, msg.Time}
 
 
         if _, err = writeChatHistory("global_chat.csv",messageToSave, true); err != nil {
