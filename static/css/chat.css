@@ -30,6 +30,7 @@ p {
   padding: 20px;
   overflow-y: scroll;
   position: relative;
+  margin-bottom: 90px;
 }
 
 
@@ -84,8 +85,12 @@ p {
 }
 
 .input-message {
-  position: absolute;
-  bottom: 30px;
-  width: 90%;
-  right: 0;
+  position: fixed;
+  bottom: 20px;
+  width: 100%;
+}
+
+#input-message {
+  width: 70%;
+  text-align: right;
 }

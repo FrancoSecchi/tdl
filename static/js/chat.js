@@ -1,20 +1,17 @@
-
 const gobusters_user = sessionStorage.getItem("gobusters_user");
 
 if (!gobusters_user) {
-  window.location.href = "/"
+  window.location.href = "/";
 }
-
 
 $(document).ready(function () {
   initSocket(gobusters_user);
+  setChatHistory();
   $("#input-message").on("keydown", function (event) {
     if (event.key === "Enter") {
       sendChatMessage();
     }
   });
-
-
 
   window.localSocket.onmessage = function (event) {
     const data = event.data;
@@ -29,6 +26,26 @@ $(document).ready(function () {
       );
   };
 });
+
+function setChatHistory() {
+  $.ajax({
+    url: "/getChatHistory",
+    method: "GET",
+    success: function (history) {
+      history.forEach(function (message) {
+        appendMessage(
+          message.user === gobusters_user,
+          message.user,
+          message.message,
+          message.time
+        );
+      });
+    },
+    error: function (error) {
+      console.error("Error al obtener el historial de chat:", error);
+    },
+  });
+}
 
 function getTime() {
   const now = new Date();
@@ -51,7 +68,7 @@ function appendMessage(isFromCurrentUser, user, messageText, time) {
   var newMessageText = $("<p>").addClass("message-text").text(messageText);
   var userText = $("<p>").addClass("username").text(user);
   var timeText = $("<p>").addClass("time").text(time);
-  console.log(user, messageText, time)
+  console.log(user, messageText, time);
   if (!isFromCurrentUser) {
     newMessage.append(userText);
   }
@@ -59,5 +76,6 @@ function appendMessage(isFromCurrentUser, user, messageText, time) {
   newMessage.append(timeText);
   $(".chat-content").append(newMessage);
   $("#input-message").val("");
+  var chatContent = $(".chat-content");
+  chatContent.scrollTop(chatContent[0].scrollHeight);
 }
-
