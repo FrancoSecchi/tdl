@@ -20,8 +20,6 @@ func HandleChat(w http.ResponseWriter, r *http.Request) {
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
-
-
 }
 
 
