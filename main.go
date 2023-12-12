@@ -10,7 +10,6 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const USESR_FILE = "users.csv"
 
 func main() {
 	chatRoom := chat.NewChatRoom()

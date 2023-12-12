@@ -19,8 +19,6 @@ type User struct {
     ws         *websocket.Conn
 }
 
-
-
 // loginUser reads user credentials from the WebSocket.
 func loginUser(ws *websocket.Conn) (*User, error) {
 	// Read action:username:password from the user
