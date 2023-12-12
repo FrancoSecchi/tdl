@@ -16,6 +16,7 @@ var Users = make(map[string]*User)
 
 type ChatRoom struct {
 	id int
+	isPrivate bool
 	users    map[*User]bool
 }
 
@@ -33,6 +34,24 @@ func NewChatRoom() *ChatRoom {
 		id: rand.Intn(100000),
 		users: make(map[*User]bool),
 	}
+}
+
+//CreatePrivateChat: Creates a private chat between 2 users
+func createPrivateChat(user1, user2 *User) *ChatRoom {
+	rand.Seed(time.Now().UnixNano())
+	privateChat := &ChatRoom{
+		id: rand.Intn(100000),
+		isPrivate: true,
+		users:     make(map[*User]bool),
+	}
+
+	privateChat.users[user1] = true
+	privateChat.users[user2] = true
+
+	user1.privateRooms[privateChat.id] = privateChat
+	user2.privateRooms[privateChat.id] = privateChat
+
+	return privateChat
 }
 
 
