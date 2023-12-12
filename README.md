@@ -1,4 +1,4 @@
-# tdl
+# Teoría del lenguaje
 
 ## Inicialización del proyecto
 
@@ -9,3 +9,5 @@ Luego de tenerlo descargado. Hay que ubicarse en la carpeta raíz del proyecto y
 ```
 go run main.go
 ```
+
+
