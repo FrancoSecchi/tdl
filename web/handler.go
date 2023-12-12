@@ -82,7 +82,6 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		}
     sendJSONResponse(w, response, 200)
     return
-	//http.Redirect(w, r, "/chat", http.StatusSeeOther)
 }
 
 func sendJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) {
