@@ -32,6 +32,9 @@ function setChatHistory() {
     url: "/getChatHistory",
     method: "GET",
     success: function (history) {
+      if (!history) {
+        return
+      }
       history.forEach(function (message) {
         appendMessage(
           message.user === gobusters_user,

@@ -8,21 +8,25 @@ import (
     "gobusters-chat-app/pkg/chat"
 )
 
+// UserActionResponse represents the response structure for user actions.
 type UserActionResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 	User    string `json:"user,omitempty"`
 }
 
+// HandleIndex serves the index.html page.
 func HandleIndex(w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, "view/index.html")
 }
 
 
+// HandleChat serves the chat.html page.
 func HandleChat(w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, "view/chat.html")
 }
 
+// HandleGetChatHistory retrieves the chat history and returns it as JSON.
 func HandleGetChatHistory(w http.ResponseWriter, r *http.Request) {
 	chatMessages, err := chat.GetChatHistoryData("chats/global_chat.csv")
 	if err != nil {
@@ -35,6 +39,7 @@ func HandleGetChatHistory(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(chatMessages)
 }
 
+// HandleLogin handles user login.
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -62,7 +67,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
     return
 }
 
-
+// HandleRegister handles user registration.
 func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

@@ -82,7 +82,7 @@ func appendUsersToCSV(users []*User, filename string) error {
     return nil
 }
 
-
+// writeChatHistory appends a message to a CSV file representing chat history.
 func writeChatHistory(filename string, message []string, isGlobalChat bool) (bool, error) {
 	chatsFolderPath := "chats"
     globalChatFilePath := filepath.Join(chatsFolderPath, filename)
@@ -107,6 +107,7 @@ func writeChatHistory(filename string, message []string, isGlobalChat bool) (boo
     return true, nil
 }
 
+// GetChatHistoryData reads chat history from a CSV file and returns a slice of ChatMessage.
 func GetChatHistoryData(filePath string) ([]ChatMessage, error) {
 	file, err := os.Open(filePath)
 	if err != nil {

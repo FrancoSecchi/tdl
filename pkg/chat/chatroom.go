@@ -14,7 +14,6 @@ import (
 // users is a map to store registered users.
 var Users = make(map[string]*User)
 
-// ChatRoom represents a chat room.
 type ChatRoom struct {
 	id int
 	users    map[*User]bool
@@ -29,20 +28,16 @@ type ChatMessage struct {
 
 // newChatRoom creates and initializes a new ChatRoom.
 func NewChatRoom() *ChatRoom {
-	// Inicializar la semilla del generador de números aleatorios
 	rand.Seed(time.Now().UnixNano())
-
 	return &ChatRoom{
 		id: rand.Intn(100000),
-		users:    make(map[*User]bool),
+		users: make(map[*User]bool),
 	}
 }
 
 
 // handleWs handles WebSocket connections in the chat room.
-func (r *ChatRoom) HandleWs(ws *websocket.Conn) {
-	// A new user has connected.
-	
+func (r *ChatRoom) HandleWs(ws *websocket.Conn) {	
 	params := ws.Request().URL.Query()
     	username := params.Get("username")
 	fmt.Println("A new user has connected:", username, " - Remote Address:", ws.RemoteAddr())
@@ -55,7 +50,8 @@ func (r *ChatRoom) HandleWs(ws *websocket.Conn) {
 	r.listen(newUser)
 }
 
-// listen escucha los mensajes entrantes de un usuario.
+// listen is a method of the ChatRoom type that listens for incoming messages from a user's WebSocket connection.
+// It continuously reads data from the WebSocket and processes it.
 func (r *ChatRoom) listen(user *User) {
     data := make([]byte, 1024)
     for {
@@ -66,8 +62,6 @@ func (r *ChatRoom) listen(user *User) {
             } else {
                 fmt.Println("Error ws:", err)
             }
-
-            // Elimina al usuario y cierra la conexión
             delete(r.users, user)
             user.ws.Close()
             return
@@ -86,8 +80,6 @@ func (r *ChatRoom) listen(user *User) {
 
         if _, err = writeChatHistory("global_chat.csv",messageToSave, true); err != nil {
             fmt.Println("Error write:", err)
-            // Puedes decidir si quieres cerrar la conexión del usuario aquí en caso de un error de escritura.
-            // user.ws.Close()
             return
         }
     }
