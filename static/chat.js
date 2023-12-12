@@ -1,7 +1,6 @@
 $(document).ready(function () {
   $("#input-message").on("keydown", function (event) {
     if (event.key === "Enter") {
-      console.log("adasldjnasldnja");
       sendMessage();
     }
   });
