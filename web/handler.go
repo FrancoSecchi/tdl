@@ -3,6 +3,12 @@ package web
 import ("net/http")
 
 
-func HandleChatRoom(w http.ResponseWriter, r *http.Request) {
+func HandleIndex(w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, "index.html")
 }
+
+
+func HandleChat(w http.ResponseWriter, r *http.Request) {
+    http.ServeFile(w, r, "chat.html")
+}
+

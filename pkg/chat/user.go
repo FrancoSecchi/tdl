@@ -28,7 +28,6 @@ func loginUser(ws *websocket.Conn) (*User, error) {
 		return nil, err
 	}
 
-	// Split the credentials into action, username, and password
 	parts := strings.Split(credentials, ":")
 	if len(parts) != 3 {
 		return nil, fmt.Errorf("Invalid credentials format")
@@ -38,12 +37,10 @@ func loginUser(ws *websocket.Conn) (*User, error) {
 
 	switch action {
 	case "login":
-		// In a real-world scenario, you would validate against a database.
 		if user, ok := users[username]; ok && user.password == password {
 			return user, nil
 		}
 	case "register":
-		// Check if the user is not already registered
 		if _, ok := users[username]; !ok {
 			user := &User{
 				name:       username,
@@ -52,10 +49,8 @@ func loginUser(ws *websocket.Conn) (*User, error) {
 				ws:         ws,
 			}
 
-			// Store the registered user
 			users[username] = user
 
-			// Write users to CSV file
 			if err := writeUsersToCSV([]*User{user}, USERS_FILE); err != nil {
 				return nil, err
 			}

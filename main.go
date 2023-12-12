@@ -13,9 +13,15 @@ import (
 
 func main() {
 	chatRoom := chat.NewChatRoom()
-	http.HandleFunc("/", web.HandleChatRoom)
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.HandleFunc("/chat", web.HandleChat)
+	http.HandleFunc("/", web.HandleIndex)
 	http.Handle("/ws", websocket.Handler(chatRoom.HandleWs))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	
 	fmt.Println("Gobusters Chat Application")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+
+func setRoutes() {
 }

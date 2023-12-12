@@ -2,16 +2,141 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./static/chat.css" />
-    <title>Gobusters Chat Application</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Login & Signup</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+
+      .container {
+        margin-top: 100px;
+      }
+
+      .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .card-header {
+        background-color: #007bff;
+        border-radius: 10px 10px 0 0;
+        color: white;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .form-container {
+        padding: 20px;
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+
+      .form-left {
+        display: none;
+        transform: translateX(0);
+      }
+
+      .form-right {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        background-color: #007bff;
+        border: none;
+        width: 100%;
+      }
+    </style>
   </head>
+
   <body>
-    <h1>Gobusters Chat Application</h1>
-    <div class="chat-container">
-      <p class="message">asdasdadasdasdasd</p>
-      <p class="message">hola 2</p>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="title" id="titleAction">Gobusters</h4>
+              <a id="switchMessage">
+                <span id="switchAction">Inicia sesión</span>
+              </a>
+            </div>
+
+            <div class="card-forms">
+              <div
+                class="form-container form-left animate__animated animate__fadeInLeft"
+              >
+                <form>
+                  <div class="form-group">
+                    <label for="loginUsername">Usuario</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="loginUsername"
+                      placeholder="Enter username"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="loginPassword"
+                      placeholder="Enter password"
+                    />
+                  </div>
+                  <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+                </form>
+              </div>
+
+              <div
+                class="form-container form-right animate__animated animate__fadeInRight"
+              >
+                <form>
+                  <div class="form-group">
+                    <label for="signupUsername">Usuario</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="signupUsername"
+                      placeholder="Choose a username"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="signupPassword">Contraseña</label>
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="signupPassword"
+                      placeholder="Choose a password"
+                    />
+                  </div>
+                  <button type="submit" class="btn btn-secondary">
+                    Registrarse
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="./static/index.js"></script>
   </body>
-  <script src="./static/chat.js"></script>
 </html>
