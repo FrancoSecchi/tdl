@@ -7,9 +7,9 @@ $(document).ready(function () {
 
     // Cambia el texto del mensaje
     $("#switchAction").text(
-      $("#switchAction").text() === "Registrate"
-        ? "Inicia sesión"
-        : "Registrate"
+      $("#switchAction").text() === "¿No tenes cuenta? Registrate"
+        ? "¿Ya tenes cuenta? Inicia sesión"
+        : "¿No tenes cuenta? Registrate"
     );
   });
 
