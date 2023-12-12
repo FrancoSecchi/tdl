@@ -4,7 +4,6 @@ import (
    "encoding/csv"
    "os"
    "io"
-   "fmt"
 )
 
 
@@ -40,7 +39,6 @@ func getUsersFromCSV(filename string) (map[string]*User, error) {
 			password:   record[1],
 			registered: record[2] == "true", // Convertir "true" a true, "false" a false,
 		}
-        fmt.Println(user)
 		allUsers[user.name] = user
 	}
 

@@ -18,36 +18,32 @@ $(document).ready(function () {
     register();
   });
 
-
   $("#loginForm").submit(function (event) {
     event.preventDefault();
     login();
   });
 });
 
-
-
 function login() {
-    const username = $("#loginUsername").val();
-    const password = $("#loginPassword").val();
+  const username = $("#loginUsername").val();
+  const password = $("#loginPassword").val();
 
-    $.ajax({
-      type: "POST",
-      url: "/login",
-      data: { username: username, password: password },
-      success: function (response) {
-        if (response.success) {
-          socket.initSocket();
-          window.location.href = "/chat"
-        }
-      },
-      error: function (error) {
-        alert("Credenciales invalidas");
-      },
-    });
+  $.ajax({
+    type: "POST",
+    url: "/login",
+    data: { username: username, password: password },
+    success: function (response) {
+      if (response.success) {
+        initSocket(username, function () {
+          window.location.href = "/chat";
+        });
+      }
+    },
+    error: function (error) {
+      alert("Credenciales invalidas");
+    },
+  });
 }
-
-
 
 function register() {
   const username = $("#signupUsername").val();
@@ -60,12 +56,13 @@ function register() {
     data: { username: username, password: password },
     success: function (response) {
       if (response.success) {
-        socket.initSocket();
-        window.location.href = "/chat";
+        initSocket(username, function () {
+          window.location.href = "/chat";
+        });
       }
     },
     error: function (error) {
-      alert("Problemas al intentar registrarse")
+      alert("Problemas al intentar registrarse");
     },
   });
 }

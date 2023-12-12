@@ -34,10 +34,6 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	// Obtener datos del formulario
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-    
-    fmt.Println("Usuario: ", username)
-    fmt.Println("contraseña: ", password)
-
 
     _, err := chat.Login(username, password)
 	if err != nil {
