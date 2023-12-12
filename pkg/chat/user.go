@@ -4,10 +4,12 @@ import (
 	"strings"
 	"fmt"
 	"strconv"
-	
+
 	"golang.org/x/net/websocket"
 
 )
+
+const USERS_FILE = "users.csv"
 
 
 type User struct {
@@ -56,7 +58,7 @@ func loginUser(ws *websocket.Conn) (*User, error) {
 			users[username] = user
 
 			// Write users to CSV file
-			if err := writeUsersToCSV([]*User{user}, "users.csv"); err != nil {
+			if err := writeUsersToCSV([]*User{user}, USERS_FILE); err != nil {
 				return nil, err
 			}
 
