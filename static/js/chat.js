@@ -13,17 +13,33 @@ $(document).ready(function () {
       sendChatMessage();
     }
   });
+
+  window.localSocket.onmessage = function (event) {
+    const data = event.data;
+    const parsedMessage = JSON.parse(data);
+    console.log(gobusters_user, parsedMessage.user);
+    if (parsedMessage.user != gobusters_user)
+      appendMessage(
+        parsedMessage.user == gobusters_user,
+        parsedMessage.message
+      );
+  };
 });
 
 function sendChatMessage() {
   var messageText = $("#input-message").val();
   if (messageText.trim() !== "") {
-    var newMessage = $("<div>").addClass("message message-sent");
-    var newMessageText = $("<p>").addClass("message-text").text(messageText);
-    newMessage.append(newMessageText);
-    $(".chat-content").append(newMessage);
-    $("#input-message").val("");
+    appendMessage(true, messageText)
     sendSocketMessage(messageText);
   }
+}
+
+function appendMessage(isFromCurrentUser, messageText) {
+  var classMessage = isFromCurrentUser ? "message-sent" : "message-received";
+  var newMessage = $("<div>").addClass("message " + classMessage);
+  var newMessageText = $("<p>").addClass("message-text").text(messageText);
+  newMessage.append(newMessageText);
+  $(".chat-content").append(newMessage);
+  $("#input-message").val("");
 }
 
