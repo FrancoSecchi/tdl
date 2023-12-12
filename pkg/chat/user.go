@@ -20,8 +20,9 @@ type RegistrationResponse struct {
 type User struct {
     name       string
     password   string
-    registered bool
-    ws         *websocket.Conn
+    registered bool 
+    privateRooms map[int]*ChatRoom
+    ws *websocket.Conn
 }
 
 func Login(username string, password string) (*User, error) {
