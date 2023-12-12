@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"strings"
 	"fmt"
 	"strconv"
 
@@ -28,48 +27,12 @@ type User struct {
     ws         *websocket.Conn
 }
 
-// loginUser reads user credentials from the WebSocket.
-func loginUser(ws *websocket.Conn) (*User, error) {
-	// Read action:username:password from the user
-	var credentials string
-	err := websocket.Message.Receive(ws, &credentials)
-	if err != nil {
-		return nil, err
-	}
+func Login(username string, password string) (*User, error) {
 
-	parts := strings.Split(credentials, ":")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid credentials format")
-	}
-
-	action, username, password := parts[0], parts[1], parts[2]
-
-	switch action {
-	case "login":
-		if user, ok := users[username]; ok && user.password == password {
+	if user, ok := users[username]; ok && user.password == password {
 			return user, nil
-		}
-	case "register":
-		if _, ok := users[username]; !ok {
-			user := &User{
-				name:       username,
-				password:   password,
-				registered: true,
-				ws:         ws,
-			}
-
-			users[username] = user
-
-			if err := appendUsersToCSV([]*User{user}, USERS_FILE); err != nil {
-				return nil, err
-			}
-
-			return user, nil
-		}
-		return nil, fmt.Errorf("User already registered")
 	}
-
-	return nil, fmt.Errorf("Invalid action")
+	return nil, fmt.Errorf("Credenciales erroneas")
 }
 
 // Register realiza la lógica de registro.
