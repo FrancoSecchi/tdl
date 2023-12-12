@@ -29,6 +29,7 @@ p {
   flex: 1;
   padding: 20px;
   overflow-y: scroll;
+  position: relative;
 }
 
 .message {
@@ -64,4 +65,11 @@ p {
   color: white;
   text-align: right;
   max-width: max-content;
+}
+
+.input-message {
+  position: absolute;
+  bottom: 30px;
+  width: 90%;
+  right: 0;
 }
