@@ -106,3 +106,35 @@ func writeChatHistory(filename string, message []string, isGlobalChat bool) (boo
     
     return true, nil
 }
+
+func GetChatHistoryData(filePath string) ([]ChatMessage, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var chatMessages []ChatMessage
+    var firstLine = true
+	for _, record := range records {
+        if firstLine {
+            firstLine = false
+            continue
+        }
+		if len(record) == 3 {
+			chatMessages = append(chatMessages, ChatMessage{
+				User:    record[0],
+				Message: record[1],
+				Time:    record[2],
+			})
+		}
+	}
+
+	return chatMessages, nil
+}

@@ -17,6 +17,7 @@ func main() {
 	http.HandleFunc("/", web.HandleIndex)
 	http.HandleFunc("/register", web.HandleRegister)
 	http.HandleFunc("/login", web.HandleLogin)
+	http.HandleFunc("/getChatHistory", web.HandleGetChatHistory)
 	http.Handle("/ws", websocket.Handler(chatRoom.HandleWs))
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	

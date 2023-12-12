@@ -2,13 +2,11 @@ package web
 
 import (
     "net/http"
-	"encoding/json"
+    "encoding/json"
     "fmt"
 
     "gobusters-chat-app/pkg/chat"
 )
-
-
 
 type UserActionResponse struct {
 	Success bool   `json:"success"`
@@ -23,6 +21,18 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 
 func HandleChat(w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, "view/chat.html")
+}
+
+func HandleGetChatHistory(w http.ResponseWriter, r *http.Request) {
+	chatMessages, err := chat.GetChatHistoryData("chats/global_chat.csv")
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Devolver el historial como JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(chatMessages)
 }
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
