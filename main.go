@@ -23,7 +23,3 @@ func main() {
 	fmt.Println("Gobusters Chat Application")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
-
-
-func setRoutes() {
-}

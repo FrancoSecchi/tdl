@@ -57,6 +57,36 @@ func (r *ChatRoom) HandleWs(ws *websocket.Conn) {
 	// Add the user to the chat room.
 	r.users[newUser] = true
 
+	info, err := os.Stat("messages.txt")
+	if err != nil {
+		fmt.Println("Error info:", err)
+		return
+	}
+
+	if info.Size() > 0 {
+		file, err := os.OpenFile("messages.txt", os.O_RDWR, 0644) //func OpenFile(name string, flag int, perm FileMode) (*File, error)
+		if err != nil {
+			fmt.Println("Error open:", err)
+			return
+		}
+
+		history := make([]byte, 1024)
+		_, err = file.Read(history) //func (f *File) Read(b []byte) (n int, err error)
+		if err != nil {
+			if err != io.EOF {
+				fmt.Println("Error read:", err)
+				return
+			}
+		}
+
+		if _, err = newUser.ws.Write(history); err != nil { //func (ws *Conn) Write(msg []byte) (n int, err error)
+			fmt.Println("Error send:", err)
+			return
+		}
+
+		fmt.Println("Los mensajes anteriores han sido enviados a", ws.RemoteAddr(), ":\n", string(history))
+	}
+
 	// Start listening for incoming messages
 	r.listen(newUser)
 }
@@ -79,7 +109,7 @@ func (r *ChatRoom) listen(user *User) {
             return
         }
 
-        msg := []byte(user.ws.RemoteAddr().String() + ": " + string(data[:n]) + "\n" + time.Now().String() + "\n")
+        msg := []byte(user.name + ": " + string(data[:n]) + "\n" + time.Now().String() + "\n")
         fmt.Println(string(msg))
         r.sendToAll(msg)
 

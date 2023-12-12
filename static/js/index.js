@@ -34,9 +34,9 @@ function login() {
     data: { username: username, password: password },
     success: function (response) {
       if (response.success) {
-        initSocket(username, function () {
+          sessionStorage.setItem("gobusters_user", username)
+
           window.location.href = "/chat";
-        });
       }
     },
     error: function (error) {
@@ -49,16 +49,14 @@ function register() {
   const username = $("#signupUsername").val();
   const password = $("#signupPassword").val();
 
-  console.log($("#signupForm").serialize());
   $.ajax({
     type: "POST",
     url: "/register",
     data: { username: username, password: password },
     success: function (response) {
       if (response.success) {
-        initSocket(username, function () {
-          window.location.href = "/chat";
-        });
+        sessionStorage.setItem("gobusters_user", username);
+        window.location.href = "/chat";
       }
     },
     error: function (error) {
