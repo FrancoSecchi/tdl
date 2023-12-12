@@ -3,7 +3,49 @@ package chat
 import (
    "encoding/csv"
    "os"
+   "io"
+   "fmt"
 )
+
+
+// getUsersFromCSV reads user data from a CSV file and returns a slice of users.
+func getUsersFromCSV(filename string) (map[string]*User, error) {
+	file, err := os.OpenFile(filename, os.O_RDONLY, 0644)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+
+	var allUsers = make(map[string]*User)
+	firstLine := true
+	for {
+		record, err := reader.Read()
+		
+        if err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, err
+		}
+
+        if firstLine {
+            firstLine = false
+            continue
+        }
+
+		// Crear un nuevo usuario a partir del registro CSV
+		user := &User{
+			name:       record[0],
+			password:   record[1],
+			registered: record[2] == "true", // Convertir "true" a true, "false" a false,
+		}
+        fmt.Println(user)
+		allUsers[user.name] = user
+	}
+
+	return allUsers, nil
+}
 
 // appendUsersToCSV writes user data to a CSV file.
 func appendUsersToCSV(users []*User, filename string) error {

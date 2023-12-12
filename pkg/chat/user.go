@@ -10,9 +10,6 @@ import (
 
 const USERS_FILE = "users.csv"
 
-
-
-
 type RegistrationResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
@@ -28,10 +25,14 @@ type User struct {
 }
 
 func Login(username string, password string) (*User, error) {
+	
+	allUsers, _ := getUsersFromCSV(USERS_FILE); 
 
-	if user, ok := users[username]; ok && user.password == password {
+
+	if user, ok := allUsers[username]; ok && user.password == password {
 			return user, nil
 	}
+
 	return nil, fmt.Errorf("Credenciales erroneas")
 }
 

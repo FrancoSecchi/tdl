@@ -17,7 +17,36 @@ $(document).ready(function () {
     event.preventDefault();
     register();
   });
+
+
+  $("#loginForm").submit(function (event) {
+    event.preventDefault();
+    login();
+  });
 });
+
+
+
+function login() {
+    const username = $("#loginUsername").val();
+    const password = $("#loginPassword").val();
+
+    $.ajax({
+      type: "POST",
+      url: "/login",
+      data: { username: username, password: password },
+      success: function (response) {
+        if (response.success) {
+          console.log(response)
+        }
+      },
+      error: function (error) {
+        console.log("Error en la solicitud AJAX:", error);
+      },
+    });
+}
+
+
 
 function register() {
   const username = $("#signupUsername").val();
@@ -30,7 +59,7 @@ function register() {
     data: { username: username, password: password },
     success: function (response) {
       if (response.success) {
-        
+
       }
     },
     error: function (error) {

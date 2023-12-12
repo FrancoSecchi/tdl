@@ -9,6 +9,13 @@ import (
 )
 
 
+
+type UserActionResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	User    string `json:"user,omitempty"`
+}
+
 func HandleIndex(w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, "view/index.html")
 }
@@ -19,15 +26,36 @@ func HandleChat(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
+	// Obtener datos del formulario
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+    
+    fmt.Println("Usuario: ", username)
+    fmt.Println("contraseña: ", password)
+
+
+    _, err := chat.Login(username, password)
+	if err != nil {
+		response := UserActionResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		sendJSONResponse(w, response, http.StatusBadRequest)
+		return
+	}
+    response := UserActionResponse{
+			Success: true,
+			Message: "Se ingresó exitosamente",
+		}
+    sendJSONResponse(w, response, 200)
+    return
 }
 
-
-type RegistrationResponse struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	User    string `json:"user,omitempty"`
-}
 
 func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -41,14 +69,14 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 
     _, err := chat.Register(username, password)
 	if err != nil {
-		response := RegistrationResponse{
+		response := UserActionResponse{
 			Success: false,
 			Message: err.Error(),
 		}
 		sendJSONResponse(w, response, http.StatusBadRequest)
 		return
 	}
-    response := RegistrationResponse{
+    response := UserActionResponse{
 			Success: true,
 			Message: "Se registro exitosamente",
 		}
