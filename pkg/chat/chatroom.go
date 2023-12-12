@@ -45,33 +45,15 @@ func (r *ChatRoom) HandleWs(ws *websocket.Conn) {
 	defer close(loginDone)
 
 	var user *User
-	var err error
 
 	go func() {
 		// Attempt to log in the user.
-		user, err = loginUser(ws)
+		user, _ = loginUser(ws)
 		loginDone <- struct{}{}
 	}()
 
 	select {
 	case <-loginDone:
-		// Login completed
-		if err != nil {
-			fmt.Println("Login/Register error:", err)
-			return
-		}
-
-		if user.registered {
-			fmt.Println("User registered:", user.name)
-
-			// Write user to CSV file
-			if err := writeUsersToCSV([]*User{user}, "users.csv"); err != nil {
-				fmt.Println("Error writing user to CSV:", err)
-			}
-		} else {
-			fmt.Println("User logged in:", user.name)
-		}
-
 		// Add the user to the chat room.
 		r.users[user] = true
 

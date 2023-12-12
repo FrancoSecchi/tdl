@@ -5,29 +5,36 @@ import (
    "os"
 )
 
-// writeUsersToCSV writes user data to a CSV file.
-func writeUsersToCSV(users []*User, filename string) error {
-      file, err := os.Create(filename)
-   if err != nil {
-      return err
-   }
-   defer file.Close()
+// appendUsersToCSV writes user data to a CSV file.
+func appendUsersToCSV(users []*User, filename string) error {
+    file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+    if err != nil {
+        return err
+    }
+    defer file.Close()
 
-   writer := csv.NewWriter(file)
-   defer writer.Flush()
+    writer := csv.NewWriter(file)
+    defer writer.Flush()
 
-   // Write header
-   header := []string{"Name", "Password", "Registered"}
-   if err := writer.Write(header); err != nil {
-      return err
-   }
+    // Opcional: Si el archivo está vacío, escribe el encabezado.
+    fileinfo, err := file.Stat()
+    if err != nil {
+        return err
+    }
 
-   // Write user data
-   for _, user := range users {
-      if err := writer.Write(user.toCSVRecord()); err != nil {
-         return err
-      }
-   }
+    if fileinfo.Size() == 0 {
+        header := []string{"Name", "Password", "Registered"}
+        if err := writer.Write(header); err != nil {
+            return err
+        }
+    }
 
-   return nil
+    // Escribe los datos de usuario
+    for _, user := range users {
+        if err := writer.Write(user.toCSVRecord()); err != nil {
+            return err
+        }
+    }
+
+    return nil
 }

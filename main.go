@@ -15,6 +15,7 @@ func main() {
 	chatRoom := chat.NewChatRoom()
 	http.HandleFunc("/chat", web.HandleChat)
 	http.HandleFunc("/", web.HandleIndex)
+	http.HandleFunc("/register", web.HandleRegister)
 	http.Handle("/ws", websocket.Handler(chatRoom.HandleWs))
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	

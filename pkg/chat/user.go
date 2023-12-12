@@ -12,6 +12,15 @@ import (
 const USERS_FILE = "users.csv"
 
 
+
+
+type RegistrationResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	User string `json:"user"`
+
+}
+
 type User struct {
     name       string
     password   string
@@ -51,7 +60,7 @@ func loginUser(ws *websocket.Conn) (*User, error) {
 
 			users[username] = user
 
-			if err := writeUsersToCSV([]*User{user}, USERS_FILE); err != nil {
+			if err := appendUsersToCSV([]*User{user}, USERS_FILE); err != nil {
 				return nil, err
 			}
 
@@ -61,6 +70,28 @@ func loginUser(ws *websocket.Conn) (*User, error) {
 	}
 
 	return nil, fmt.Errorf("Invalid action")
+}
+
+// Register realiza la lógica de registro.
+func Register(username string, password string) (*User, error) {
+	if _, ok := users[username]; !ok {
+		user := &User{
+			name:       username,
+			password:   password,
+			registered: true,
+		}
+
+		users[username] = user
+
+		if err := appendUsersToCSV([]*User{user}, USERS_FILE); err != nil {
+			return nil, fmt.Errorf("Error al escribir el usuario en CSV: %v", err)
+		}
+
+		return user, nil
+	}
+
+	// Usuario ya registrado
+	return nil, fmt.Errorf("Usuario ya registrado")
 }
 
 func (u *User) toCSVRecord() []string {

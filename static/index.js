@@ -15,16 +15,26 @@ $(document).ready(function () {
 
   $("#signupForm").submit(function (event) {
     event.preventDefault();
-
     register();
   });
-
 });
 
-  function register() {
-    const username = $("#signupUsername").val();
-    const password = $("#signupPassword").val();
+function register() {
+  const username = $("#signupUsername").val();
+  const password = $("#signupPassword").val();
 
-    let socket = new WebSocket("ws://localhost:8080/ws");
-    window.location.href = "/chat"; 
-  }
+  console.log($("#signupForm").serialize());
+  $.ajax({
+    type: "POST",
+    url: "/register",
+    data: { username: username, password: password },
+    success: function (response) {
+      if (response.success) {
+        
+      }
+    },
+    error: function (error) {
+      console.log("Error en la solicitud AJAX:", error);
+    },
+  });
+}
