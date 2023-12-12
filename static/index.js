@@ -12,4 +12,19 @@ $(document).ready(function () {
         : "Registrate"
     );
   });
+
+  $("#signupForm").submit(function (event) {
+    event.preventDefault();
+
+    register();
+  });
+
 });
+
+  function register() {
+    const username = $("#signupUsername").val();
+    const password = $("#signupPassword").val();
+
+    let socket = new WebSocket("ws://localhost:8080/ws");
+    window.location.href = "/chat"; 
+  }

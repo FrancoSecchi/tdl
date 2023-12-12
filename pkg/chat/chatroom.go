@@ -1,12 +1,12 @@
 package chat
 
 import (
-    "fmt"
-    "io"
-    "os"
-    "time"
+"fmt"
+"io"
+"os"
+"time"
 
-    "golang.org/x/net/websocket"
+"golang.org/x/net/websocket"
 )
 
 
@@ -104,7 +104,7 @@ func (r *ChatRoom) HandleWs(ws *websocket.Conn) {
 				return
 			}
 
-			fmt.Println("Previous messages have been sent to", ws.RemoteAddr(), ":\n", string(history))
+			//fmt.Println("Previous messages have been sent to", ws.RemoteAddr(), ":\n", string(history))
 		}
 
 		// Start listening for incoming messages
