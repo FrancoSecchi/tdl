@@ -10,12 +10,6 @@ import (
 
 const USERS_FILE = "users.csv"
 
-type RegistrationResponse struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	User string `json:"user"`
-
-}
 
 type User struct {
     name       string
@@ -23,6 +17,17 @@ type User struct {
     registered bool 
     privateRooms map[int]*ChatRoom
     ws *websocket.Conn
+}
+
+func GetUser(username string) (*User, error) {
+	allUsers, _ := getUsersFromCSV(USERS_FILE); 
+
+	if user, ok := allUsers[username]; ok {
+		Users[username] = user
+		return user, nil
+	}
+	return nil, fmt.Errorf("Usuario incorrecto")
+
 }
 
 func Login(username string, password string) (*User, error) {

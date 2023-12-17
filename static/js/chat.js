@@ -5,7 +5,7 @@ if (!gobusters_user) {
 }
 
 $(document).ready(function () {
-  initSocket(gobusters_user);
+  initSocket(gobusters_user, "GLOBAL_CHAT");
   setChatHistory();
   $("#input-message").on("keydown", function (event) {
     if (event.key === "Enter") {
@@ -13,10 +13,14 @@ $(document).ready(function () {
     }
   });
 
-  window.localSocket.onmessage = function (event) {
+  window.localSocket.addEventListener("message", function (event) {
     const data = event.data;
     const parsedMessage = JSON.parse(data);
-    console.log(parsedMessage);
+
+    if (isBase64(JSON.parse(data))) {
+      return;
+    }
+
     if (parsedMessage.user != gobusters_user)
       appendMessage(
         parsedMessage.user == gobusters_user,
@@ -24,7 +28,7 @@ $(document).ready(function () {
         parsedMessage.message,
         parsedMessage.time
       );
-  };
+  });
 });
 
 function setChatHistory() {
@@ -33,7 +37,7 @@ function setChatHistory() {
     method: "GET",
     success: function (history) {
       if (!history) {
-        return
+        return;
       }
       history.forEach(function (message) {
         appendMessage(
@@ -42,6 +46,12 @@ function setChatHistory() {
           message.message,
           message.time
         );
+      });
+
+      $(".username").on("click", function (event) {
+        $this = $(this);
+        let username = $this.text();
+        console.log(username);
       });
     },
     error: function (error) {
@@ -71,7 +81,6 @@ function appendMessage(isFromCurrentUser, user, messageText, time) {
   var newMessageText = $("<p>").addClass("message-text").text(messageText);
   var userText = $("<p>").addClass("username").text(user);
   var timeText = $("<p>").addClass("time").text(time);
-  console.log(user, messageText, time);
   if (!isFromCurrentUser) {
     newMessage.append(userText);
   }

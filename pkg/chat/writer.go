@@ -122,7 +122,7 @@ func GetChatHistoryData(filePath string) ([]ChatMessage, error) {
 	}
 
 	var chatMessages []ChatMessage
-    var firstLine = true
+ 	var firstLine = true
 	for _, record := range records {
         if firstLine {
             firstLine = false

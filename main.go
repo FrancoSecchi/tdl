@@ -7,18 +7,22 @@ import (
 
 	"gobusters-chat-app/pkg/chat"
 	"gobusters-chat-app/web"
-	"golang.org/x/net/websocket"
 )
 
 
+
+
 func main() {
-	chatRoom := chat.NewChatRoom()
+	poolRooms := chat.NewChatRoomPool()
+	chatRoom := chat.NewChatRoom(1)
+	chat.AddRoomToPool(poolRooms, chatRoom);
+	
 	http.HandleFunc("/chat", web.HandleChat)
 	http.HandleFunc("/", web.HandleIndex)
 	http.HandleFunc("/register", web.HandleRegister)
 	http.HandleFunc("/login", web.HandleLogin)
 	http.HandleFunc("/getChatHistory", web.HandleGetChatHistory)
-	http.Handle("/ws", websocket.Handler(chatRoom.HandleWs))
+	http.Handle("/ws", web.NewConnectWsHandler(poolRooms))
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	
 	fmt.Println("Gobusters Chat Application")

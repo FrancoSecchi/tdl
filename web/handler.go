@@ -6,7 +6,11 @@ import (
     "fmt"
 
     "gobusters-chat-app/pkg/chat"
+    "golang.org/x/net/websocket"
 )
+
+const GLOBAL_CHAT = "GLOBAL_CHAT"
+const PRIVATE_CHAT = "PRIVATE_CHAT"
 
 // UserActionResponse represents the response structure for user actions.
 type UserActionResponse struct {
@@ -46,7 +50,6 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Obtener datos del formulario
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
@@ -67,6 +70,26 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
     return
 }
 
+
+// NewConnectWsHandler devuelve un http.Handler para la conexión inicial WebSocket.
+func NewConnectWsHandler(poolRooms *chat.ChatRoomPool) http.Handler {
+	return websocket.Handler(func(ws *websocket.Conn) {
+		r := ws.Request()
+		params := r.URL.Query()
+		typeMessage := params.Get("typeMessage")
+		HandleConnectWs(ws, poolRooms, typeMessage)
+	})
+}
+
+
+// HandleConnectWs maneja la solicitud de conexión WebSocket inicial.
+func HandleConnectWs(ws *websocket.Conn, poolRooms *chat.ChatRoomPool, typeMessage string) {
+	if (typeMessage != PRIVATE_CHAT) {
+		globalChat := poolRooms.GetRoomByID(1)
+		globalChat.HandleWs(ws)
+	} 
+}
+
 // HandleRegister handles user registration.
 func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -74,7 +97,6 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Obtener datos del formulario
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 

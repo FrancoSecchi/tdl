@@ -26,12 +26,36 @@ type ChatMessage struct {
 	Time    string `json:"time"`
 }
 
+type ChatRoomPool struct {
+    rooms map[int]*ChatRoom
+}
+
+
+func NewChatRoomPool() *ChatRoomPool {
+    return &ChatRoomPool{
+        rooms: make(map[int]*ChatRoom),
+    }
+}
+
+func (pool *ChatRoomPool) GetRoomByID(roomID int) *ChatRoom {
+    return pool.rooms[roomID]
+}
+
+func AddRoomToPool(p *ChatRoomPool, r *ChatRoom) {
+	p.rooms[r.id] = r
+}
+
 
 // newChatRoom creates and initializes a new ChatRoom.
-func NewChatRoom() *ChatRoom {
+func NewChatRoom(id int) *ChatRoom {
 	rand.Seed(time.Now().UnixNano())
+
+	if (id == 0) {
+		id = rand.Intn(100000)
+	}
+
 	return &ChatRoom{
-		id: rand.Intn(100000),
+		id: id,
 		users: make(map[*User]bool),
 	}
 }
@@ -54,18 +78,32 @@ func createPrivateChat(user1, user2 *User) *ChatRoom {
 	return privateChat
 }
 
-
 // handleWs handles WebSocket connections in the chat room.
-func (r *ChatRoom) HandleWs(ws *websocket.Conn) {	
+func (r *ChatRoom) HandleWs(ws *websocket.Conn) {
 	params := ws.Request().URL.Query()
-    	username := params.Get("username")
+	username := params.Get("username")
 	fmt.Println("A new user has connected:", username, " - Remote Address:", ws.RemoteAddr())
 
 	newUser := &User{
-            name: username,
-            ws:   ws,
+		name: username,
+		ws:   ws,
 	}
 	r.users[newUser] = true
+
+	message := map[string]int{"roomID": r.id}
+	jsonMessage, err := json.Marshal(message)
+	if err != nil {
+		fmt.Println("Error encoding JSON:", err)
+		return
+	}
+
+	if err := websocket.JSON.Send(ws, jsonMessage); err != nil {
+		fmt.Println("Error sending roomID to the client:", err)
+		return
+	}
+
+	fmt.Println("RoomID sent to the client")
+
 	r.listen(newUser)
 }
 
@@ -97,7 +135,7 @@ func (r *ChatRoom) listen(user *User) {
 	  messageToSave :=  []string {msg.User, msg.Message, msg.Time}
 
 
-        if _, err = writeChatHistory("global_chat.csv",messageToSave, true); err != nil {
+        if _, err = writeChatHistory("global_chat.csv", messageToSave, true); err != nil {
             fmt.Println("Error write:", err)
             return
         }

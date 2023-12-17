@@ -5,7 +5,6 @@ $(document).ready(function () {
     );
     $(".form-container").toggleClass("form-left form-right");
 
-    // Cambia el texto del mensaje
     $("#switchAction").text(
       $("#switchAction").text() === "¿No tenes cuenta? Registrate"
         ? "¿Ya tenes cuenta? Inicia sesión"
