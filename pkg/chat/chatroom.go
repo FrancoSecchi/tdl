@@ -6,6 +6,7 @@ import (
 "time"
 "encoding/json"
 "math/rand"
+"strconv"
 
 "golang.org/x/net/websocket"
 )
@@ -62,38 +63,81 @@ func NewChatRoom(id int) *ChatRoom {
 	}
 }
 
-//CreatePrivateChat: Creates a private chat between 2 users
-func createPrivateChat(user1, user2 *User) *ChatRoom {
-	rand.Seed(time.Now().UnixNano())
-	privateChat := &ChatRoom{
-		id: rand.Intn(100000),
-		isPrivate: true,
-		users:     make(map[*User]bool),
-	}
+func CreatePrivateChat(users []string, ws *websocket.Conn) *ChatRoom {
+   rand.Seed(time.Now().UnixNano())
 
-	privateChat.users[user1] = true
-	privateChat.users[user2] = true
+   privateChat := &ChatRoom{
+      id:        rand.Intn(100000),
+      isPrivate: true,
+      users:     make(map[*User]bool),
+   }
 
-	user1.privateRooms[privateChat.id] = privateChat
-	user2.privateRooms[privateChat.id] = privateChat
+   for _, username := range users {
+      user := Users[username]
+	var userWs *websocket.Conn
 
-	return privateChat
+
+      if user != nil {
+         if !privateChat.users[user] {
+		if (user.name == users[0]) {
+			userWs = ws
+		}
+            user.ws = userWs
+            privateChat.users[user] = true
+            if user.privateRooms == nil {
+               user.privateRooms = make(map[int]*ChatRoom)
+            }
+            user.privateRooms[privateChat.id] = privateChat
+         }
+      }
+   }
+
+   return privateChat
+}
+
+
+// GetOrCreatePrivateRoomBetweenUsers verifica si ya existe una sala de chat privada entre dos usuarios.
+// Si existe, devuelve la sala de chat privada; de lo contrario, crea una nueva sala y la devuelve.
+func GetOrCreatePrivateRoomBetweenUsers(username1, username2 string, ws *websocket.Conn) (*ChatRoom, bool) {
+    // Verificar si ya existe una sala de chat privada entre los usuarios
+    user1 := Users[username1]
+    user2 := Users[username2]
+    existingRoom := findPrivateRoom(user1, user2)
+    if existingRoom != nil {
+        return existingRoom, true
+    }
+    fmt.Println("Llego?:", username1)
+    return CreatePrivateChat([]string{username1, username2}, ws), false
+}
+
+// findPrivateRoom busca una sala de chat privada entre dos usuarios.
+// Devuelve la sala de chat privada si la encuentra; de lo contrario, devuelve nil.
+func findPrivateRoom(user1, user2 *User) *ChatRoom {
+    // Iterar sobre las salas privadas de user1 y verificar si user2 está en alguna de ellas
+    for _, room := range user1.privateRooms {
+        if room.users[user2] {
+		fmt.Println("Room 1:", room)
+            return room
+        }
+    }
+
+    // Iterar sobre las salas privadas de user2 y verificar si user1 está en alguna de ellas
+    for _, room := range user2.privateRooms {
+        if room.users[user1] {
+		fmt.Println("Room 2:", room)
+            return room
+        }
+    }
+
+    // No se encontró ninguna sala privada existente
+    return nil
 }
 
 // handleWs handles WebSocket connections in the chat room.
 func (r *ChatRoom) HandleWs(ws *websocket.Conn) {
-	params := ws.Request().URL.Query()
-	username := params.Get("username")
-	fmt.Println("A new user has connected:", username, " - Remote Address:", ws.RemoteAddr())
-
-	newUser := &User{
-		name: username,
-		ws:   ws,
-	}
-	r.users[newUser] = true
-
 	message := map[string]int{"roomID": r.id}
 	jsonMessage, err := json.Marshal(message)
+
 	if err != nil {
 		fmt.Println("Error encoding JSON:", err)
 		return
@@ -106,7 +150,31 @@ func (r *ChatRoom) HandleWs(ws *websocket.Conn) {
 
 	fmt.Println("RoomID sent to the client")
 
-	r.listen(newUser)
+	params := ws.Request().URL.Query()
+	username := params.Get("username")
+	if (!r.isPrivate) {	
+		fmt.Println("A new user has connected:", username, " - Remote Address:", ws.RemoteAddr())
+		newUser := &User{
+			name: username,
+			ws:   ws,
+			privateRooms: make(map[int]*ChatRoom),
+		}
+		r.users[newUser] = true
+		r.listen(newUser)
+	} else {
+		user, err := GetUser(username)
+		if (err != nil) {
+			fmt.Println("Error getting the user: ", err)
+		}	
+		
+		if (user.ws == nil) {
+			user.ws = ws
+		}
+		fmt.Println("Usuario: ", user)
+		r.users[user] = true
+		r.listen(user)
+	}
+
 }
 
 // listen is a method of the ChatRoom type that listens for incoming messages from a user's WebSocket connection.
@@ -136,8 +204,12 @@ func (r *ChatRoom) listen(user *User) {
 
 	  messageToSave :=  []string {msg.User, msg.Message, msg.Time}
 
+	  filename := "global_chat.csv"
+	  if (r.isPrivate) {
+		filename = strconv.Itoa(r.id) + "_chat.csv"
+	  }
 
-        if _, err = writeChatHistory("global_chat.csv", messageToSave, true); err != nil {
+        if _, err = writeChatHistory(filename, messageToSave, true); err != nil {
             fmt.Println("Error write:", err)
             return
         }

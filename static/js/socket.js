@@ -31,8 +31,22 @@ const isBase64 = (str) => {
   }
 };
 
-function initPrivateRoomSocket(username, username2) {
-  
+function initPrivateRoomSocket(username, usernameTarget) {
+    typeMessage = "PRIVATE_CHAT";
+      window.localSocket = new WebSocket(
+        "ws://localhost:8080/ws?username=" +
+          username +
+          "&typeMessage=" +
+          typeMessage +
+          "&targetUser=" + usernameTarget
+      );
+      window.localSocket.addEventListener("open", function (event) {
+        console.log("Se establecio un canal privado entre "+ username + " y " + usernameTarget);
+      });
+      
+      window.localSocket.addEventListener("message", function (event) {
+        console.log(event)
+      });
 }
 
 function sendSocketMessage(message) {

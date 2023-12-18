@@ -53,7 +53,7 @@ function setChatHistory() {
         let username = $this.text();
 
         if (username !== gobusters_user) {
-          initPrivateRoomSocket(username, gobusters_user);
+          initPrivateRoomSocket(gobusters_user, username);
         }
       });
     },

@@ -39,7 +39,6 @@ func HandleGetChatHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Devolver el historial como JSON
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(chatMessages)
 }
@@ -89,7 +88,13 @@ func HandleConnectWs(ws *websocket.Conn, poolRooms *chat.ChatRoomPool, params ur
 		globalChat := poolRooms.GetRoomByID(chat.GLOBAL_CHAT_ID)
 		globalChat.HandleWs(ws)
 	}  else {
-
+		username := params.Get("username")
+		userTarget := params.Get("targetUser")
+		privateRoom, roomAlreadyExisted := chat.GetOrCreatePrivateRoomBetweenUsers(username, userTarget, ws)
+		if (!roomAlreadyExisted) {
+			chat.AddRoomToPool(poolRooms, privateRoom);
+		}
+		privateRoom.HandleWs(ws)
 	}
 }
 
