@@ -85,24 +85,22 @@ func appendUsersToCSV(users []*User, filename string) error {
 // writeChatHistory appends a message to a CSV file representing chat history.
 func writeChatHistory(filename string, message []string, isGlobalChat bool) (bool, error) {
 	chatsFolderPath := "chats"
-	globalChatFilePath := filepath.Join(chatsFolderPath, filename)
-	globalChatFile, err := os.OpenFile(globalChatFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	chatsFilePath := filepath.Join(chatsFolderPath, filename)
+	chatFile, err := os.OpenFile(chatsFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println("Error al abrir el archivo global_chat.csv:", err)
 		return false, err
 	}
-	defer globalChatFile.Close()
+	defer chatFile.Close()
 
-    if (isGlobalChat) {
-        globalChatWriter := csv.NewWriter(globalChatFile)
-        defer globalChatWriter.Flush()
+	chatWriter := csv.NewWriter(chatFile)
+	defer chatWriter.Flush()
 
-        err = globalChatWriter.Write(message)
-        if err != nil {
-            fmt.Println("Error al escribir en el archivo global_chat.csv:", err)
-            return false, err
-        }
-    }
+	err = chatWriter.Write(message)
+	if err != nil {
+		fmt.Println("Error al escribir en el archivo " + filename + ": ", err)
+		return false, err
+	}
     
     return true, nil
 }
