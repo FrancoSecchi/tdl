@@ -106,25 +106,20 @@ func GetOrCreatePrivateRoomBetweenUsers(username1, username2 string, ws *websock
     if existingRoom != nil {
         return existingRoom, true
     }
-    fmt.Println("Llego?:", username1)
     return CreatePrivateChat([]string{username1, username2}, ws), false
 }
 
 // findPrivateRoom busca una sala de chat privada entre dos usuarios.
 // Devuelve la sala de chat privada si la encuentra; de lo contrario, devuelve nil.
 func findPrivateRoom(user1, user2 *User) *ChatRoom {
-    // Iterar sobre las salas privadas de user1 y verificar si user2 está en alguna de ellas
     for _, room := range user1.privateRooms {
         if room.users[user2] {
-		fmt.Println("Room 1:", room)
             return room
         }
     }
 
-    // Iterar sobre las salas privadas de user2 y verificar si user1 está en alguna de ellas
     for _, room := range user2.privateRooms {
         if room.users[user1] {
-		fmt.Println("Room 2:", room)
             return room
         }
     }

@@ -6,7 +6,7 @@ if (!gobusters_user) {
 
 $(document).ready(function () {
   initSocket(gobusters_user, "GLOBAL_CHAT");
-  setChatHistory();
+  setChatHistory(1);
   $("#input-message").on("keydown", function (event) {
     if (event.key === "Enter") {
       sendChatMessage();
@@ -16,7 +16,7 @@ $(document).ready(function () {
   window.localSocket.addEventListener("message", function (event) {
     const data = event.data;
     const parsedMessage = JSON.parse(data);
-
+    
     if (isBase64(JSON.parse(data))) {
       return;
     }
@@ -29,16 +29,14 @@ $(document).ready(function () {
         parsedMessage.time
       );
   });
+
 });
 
-function setChatHistory() {
+function setChatHistory(idRoom) {
   $.ajax({
-    url: "/getChatHistory",
+    url: "/getChatHistory?roomID=" + idRoom,
     method: "GET",
     success: function (history) {
-      if (!history) {
-        return;
-      }
       history.forEach(function (message) {
         appendMessage(
           message.user === gobusters_user,
@@ -47,13 +45,28 @@ function setChatHistory() {
           message.time
         );
       });
-
       $(".username").on("click", function (event) {
         $this = $(this);
         let username = $this.text();
-
         if (username !== gobusters_user) {
           initPrivateRoomSocket(gobusters_user, username);
+          $(".chat-container .message").remove()
+          window.localSocket.addEventListener("message", function (event) {
+            const data = event.data;
+            const parsedMessage = JSON.parse(data);
+            console.log(data, parsedMessage);
+            if (isBase64(JSON.parse(data))) {
+              return;
+            }
+
+            if (parsedMessage.user != gobusters_user)
+              appendMessage(
+                parsedMessage.user == gobusters_user,
+                parsedMessage.user,
+                parsedMessage.message,
+                parsedMessage.time
+              );
+          });
         }
       });
     },

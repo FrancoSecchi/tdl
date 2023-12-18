@@ -5,7 +5,8 @@ import (
    "os"
    "io"
    "fmt"
-    
+   "strings"
+
    "path/filepath"
 )
 
@@ -109,6 +110,9 @@ func writeChatHistory(filename string, message []string, isGlobalChat bool) (boo
 func GetChatHistoryData(filePath string) ([]ChatMessage, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return []ChatMessage{}, nil
+		}
 		return nil, err
 	}
 	defer file.Close()
@@ -122,7 +126,7 @@ func GetChatHistoryData(filePath string) ([]ChatMessage, error) {
 	var chatMessages []ChatMessage
  	var firstLine = true
 	for _, record := range records {
-        if firstLine {
+        if firstLine && strings.Contains(strings.ToLower(filePath), "global") {
             firstLine = false
             continue
         }

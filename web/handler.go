@@ -5,6 +5,8 @@ import (
     "encoding/json"
     "fmt"
     "net/url"
+    //"strconv"
+
 
     "gobusters-chat-app/pkg/chat"
     "golang.org/x/net/websocket"
@@ -33,9 +35,18 @@ func HandleChat(w http.ResponseWriter, r *http.Request) {
 
 // HandleGetChatHistory retrieves the chat history and returns it as JSON.
 func HandleGetChatHistory(w http.ResponseWriter, r *http.Request) {
-	chatMessages, err := chat.GetChatHistoryData("chats/global_chat.csv")
+
+	queryParams := r.URL.Query()
+      roomID := queryParams.Get("roomID")
+	filepath := "chats/global_chat.csv"
+
+	if(roomID != "1") {
+		filepath = "chats/" + roomID + "_chat.csv"
+	}
+
+	chatMessages, err := chat.GetChatHistoryData(filepath)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
