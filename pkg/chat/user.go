@@ -20,10 +20,7 @@ type User struct {
 }
 
 func GetUser(username string) (*User, error) {
-	allUsers, _ := getUsersFromCSV(USERS_FILE); 
-
-	if user, ok := allUsers[username]; ok {
-		Users[username] = user
+	if user, ok := Users[username]; ok {
 		return user, nil
 	}
 	return nil, fmt.Errorf("Usuario incorrecto")
