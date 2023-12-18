@@ -11,6 +11,8 @@ import (
 )
 
 
+const GLOBAL_CHAT_ID = 1
+
 // users is a map to store registered users.
 var Users = make(map[string]*User)
 

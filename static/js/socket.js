@@ -11,7 +11,6 @@ function initSocket(username, typeMessage) {
   });
 
   window.localSocket.addEventListener("message", function (event) {
-    console.log(event.data);
 
     const jsonData = isBase64(event.data)
       ? JSON.parse(atob(event.data))
@@ -32,7 +31,9 @@ const isBase64 = (str) => {
   }
 };
 
-function initPrivateRoomSocket(username, username2) {}
+function initPrivateRoomSocket(username, username2) {
+  
+}
 
 function sendSocketMessage(message) {
   window.localSocket.send(message);

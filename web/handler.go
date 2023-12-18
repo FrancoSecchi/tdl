@@ -4,6 +4,7 @@ import (
     "net/http"
     "encoding/json"
     "fmt"
+    "net/url"
 
     "gobusters-chat-app/pkg/chat"
     "golang.org/x/net/websocket"
@@ -76,18 +77,20 @@ func NewConnectWsHandler(poolRooms *chat.ChatRoomPool) http.Handler {
 	return websocket.Handler(func(ws *websocket.Conn) {
 		r := ws.Request()
 		params := r.URL.Query()
-		typeMessage := params.Get("typeMessage")
-		HandleConnectWs(ws, poolRooms, typeMessage)
+		HandleConnectWs(ws, poolRooms, params)
 	})
 }
 
 
 // HandleConnectWs maneja la solicitud de conexión WebSocket inicial.
-func HandleConnectWs(ws *websocket.Conn, poolRooms *chat.ChatRoomPool, typeMessage string) {
+func HandleConnectWs(ws *websocket.Conn, poolRooms *chat.ChatRoomPool, params url.Values) {
+	typeMessage := params.Get("typeMessage")
 	if (typeMessage != PRIVATE_CHAT) {
-		globalChat := poolRooms.GetRoomByID(1)
+		globalChat := poolRooms.GetRoomByID(chat.GLOBAL_CHAT_ID)
 		globalChat.HandleWs(ws)
-	} 
+	}  else {
+
+	}
 }
 
 // HandleRegister handles user registration.

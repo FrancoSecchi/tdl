@@ -51,7 +51,10 @@ function setChatHistory() {
       $(".username").on("click", function (event) {
         $this = $(this);
         let username = $this.text();
-        console.log(username);
+
+        if (username !== gobusters_user) {
+          initPrivateRoomSocket(username, gobusters_user);
+        }
       });
     },
     error: function (error) {

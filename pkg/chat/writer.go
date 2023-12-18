@@ -40,7 +40,7 @@ func getUsersFromCSV(filename string) (map[string]*User, error) {
 		user := &User{
 			name:       record[0],
 			password:   record[1],
-			registered: record[2] == "true", // Convertir "true" a true, "false" a false,
+			registered: record[2] == "true",
 		}
 		allUsers[user.name] = user
 	}
@@ -85,7 +85,7 @@ func appendUsersToCSV(users []*User, filename string) error {
 // writeChatHistory appends a message to a CSV file representing chat history.
 func writeChatHistory(filename string, message []string, isGlobalChat bool) (bool, error) {
 	chatsFolderPath := "chats"
-    globalChatFilePath := filepath.Join(chatsFolderPath, filename)
+	globalChatFilePath := filepath.Join(chatsFolderPath, filename)
 	globalChatFile, err := os.OpenFile(globalChatFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println("Error al abrir el archivo global_chat.csv:", err)
