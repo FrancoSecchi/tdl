@@ -37,7 +37,7 @@ func Login(username string, password string) (*User, error) {
 		return user, nil
 	}
 
-	return nil, fmt.Errorf("Credenciales erroneas")
+	return nil, fmt.Errorf("Credenciales erroneas o el usuario no existe")
 }
 
 // Register realiza la lógica de registro.
