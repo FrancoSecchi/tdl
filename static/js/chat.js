@@ -7,6 +7,16 @@ if (!gobusters_user) {
 $(document).ready(function () {
   initSocket(gobusters_user, "GLOBAL_CHAT");
   setChatHistory(1);
+
+  let userList =
+    JSON.parse(sessionStorage.getItem("gobusters_user_list")) || [];
+  userList.forEach((user) => {
+    $(".chat-list").append(
+      `<a href="#" data-room-id="${user.roomId}">${user.username}</a>`
+    );
+  });
+
+
   $("#input-message").on("keydown", function (event) {
     if (event.key === "Enter") {
       sendChatMessage();
@@ -36,6 +46,26 @@ $(document).ready(function () {
     if (username !== gobusters_user) {
       initPrivateRoomSocket(gobusters_user, username);
       $(".chat-content .message").remove();
+      
+
+       let roomId = sessionStorage.getItem("gobusters_current_room_id");
+       let userList =
+         JSON.parse(sessionStorage.getItem("gobusters_user_list")) || [];
+
+       if (!userList.find((user) => user.username === username && user.roomId === roomId)) {
+         userList.push({ username, roomId });
+       }
+
+
+      sessionStorage.setItem("gobusters_user_list", JSON.stringify(userList));
+
+      userList.forEach((user) => {
+        $(".chat-list").append(
+          `<a href="#" data-room-id="${user.roomId}">${user.username}</a>`
+        );
+      });
+
+
       setChatHistory(sessionStorage.getItem("gobusters_current_room_id"));
       window.localSocket.addEventListener("message", function (event) {
         const data = event.data;

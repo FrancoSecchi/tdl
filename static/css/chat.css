@@ -21,6 +21,8 @@ p {
   text-decoration: none;
   color: #333;
   background-color: #f2f2f2;
+
+  margin-bottom: 20px;
 }
 
 .chat-list a:hover {
