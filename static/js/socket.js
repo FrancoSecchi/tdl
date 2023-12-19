@@ -31,6 +31,7 @@ const isBase64 = (str) => {
 };
 
 function initPrivateRoomSocket(username, usernameTarget) {
+
   typeMessage = "PRIVATE_CHAT";
   window.localSocket = new WebSocket(
     "ws://localhost:8080/ws?username=" +
@@ -40,6 +41,8 @@ function initPrivateRoomSocket(username, usernameTarget) {
       "&targetUser=" +
       usernameTarget
   );
+
+  
   window.localSocket.addEventListener("open", function (event) {
     console.log(
       "Se establecio un canal privado entre " +

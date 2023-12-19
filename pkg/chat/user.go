@@ -42,7 +42,9 @@ func Login(username string, password string) (*User, error) {
 
 // Register realiza la lógica de registro.
 func Register(username string, password string) (*User, error) {
-	if _, ok := Users[username]; !ok {
+	allUsers, _ := getUsersFromCSV(USERS_FILE); 
+
+	if _, ok := allUsers[username]; !ok {
 		user := &User{
 			name:       username,
 			password:   password,

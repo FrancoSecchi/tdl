@@ -16,7 +16,7 @@ $(document).ready(function () {
   window.localSocket.addEventListener("message", function (event) {
     const data = event.data;
     const parsedMessage = JSON.parse(data);
-    
+
     if (isBase64(JSON.parse(data))) {
       return;
     }
@@ -30,6 +30,31 @@ $(document).ready(function () {
       );
   });
 
+  $(document).on("click", ".username", function (event) {
+    $this = $(this);
+    let username = $this.text();
+    if (username !== gobusters_user) {
+      initPrivateRoomSocket(gobusters_user, username);
+      $(".chat-content .message").remove();
+      setChatHistory(sessionStorage.getItem("gobusters_current_room_id"));
+      window.localSocket.addEventListener("message", function (event) {
+        const data = event.data;
+        const parsedMessage = JSON.parse(data);
+        console.log(data, parsedMessage);
+        if (isBase64(JSON.parse(data))) {
+          return;
+        }
+
+        if (parsedMessage.user != gobusters_user)
+          appendMessage(
+            parsedMessage.user == gobusters_user,
+            parsedMessage.user,
+            parsedMessage.message,
+            parsedMessage.time
+          );
+      });
+    }
+  });
 });
 
 function setChatHistory(idRoom) {
@@ -44,30 +69,6 @@ function setChatHistory(idRoom) {
           message.message,
           message.time
         );
-      });
-      $(".username").on("click", function (event) {
-        $this = $(this);
-        let username = $this.text();
-        if (username !== gobusters_user) {
-          initPrivateRoomSocket(gobusters_user, username);
-          $(".chat-container .message").remove()
-          window.localSocket.addEventListener("message", function (event) {
-            const data = event.data;
-            const parsedMessage = JSON.parse(data);
-            console.log(data, parsedMessage);
-            if (isBase64(JSON.parse(data))) {
-              return;
-            }
-
-            if (parsedMessage.user != gobusters_user)
-              appendMessage(
-                parsedMessage.user == gobusters_user,
-                parsedMessage.user,
-                parsedMessage.message,
-                parsedMessage.time
-              );
-          });
-        }
       });
     },
     error: function (error) {

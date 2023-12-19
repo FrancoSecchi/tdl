@@ -99,7 +99,6 @@ func CreatePrivateChat(users []string, ws *websocket.Conn) *ChatRoom {
 // GetOrCreatePrivateRoomBetweenUsers verifica si ya existe una sala de chat privada entre dos usuarios.
 // Si existe, devuelve la sala de chat privada; de lo contrario, crea una nueva sala y la devuelve.
 func GetOrCreatePrivateRoomBetweenUsers(username1, username2 string, ws *websocket.Conn) (*ChatRoom, bool) {
-    // Verificar si ya existe una sala de chat privada entre los usuarios
     user1 := Users[username1]
     user2 := Users[username2]
     existingRoom := findPrivateRoom(user1, user2)
